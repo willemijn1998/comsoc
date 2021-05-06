@@ -30,7 +30,7 @@ def max_approval(P, A, b, c, n):
     Zal het morgen beter implementeren
     """
     budget = np.full((P, n * P), np.inf)
-    projects = defaultdict(list)
+    projects = collections.defaultdict(list)
     
     approval_score = np.zeros(P)
     
