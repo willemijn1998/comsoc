@@ -23,3 +23,60 @@ def greedy(profile, prod_costs, budget):
         flat_votes = list(filter(prod_elected.__ne__, flat_votes))
 
     return total_elected
+
+def max_approval(P, A, b, c, n):
+    """ 
+    Dit is de klad versie, snap het nu eindelijk
+    Zal het morgen beter implementeren
+    """
+    budget = np.full((P, n * P), np.inf)
+    projects = defaultdict(list)
+    
+    approval_score = np.zeros(P)
+    
+    for A_i in A:
+        approval_score[A_i] += 1
+    
+    for k in range(P):
+        for t in range(n * P):
+            
+            if k == 0 and t in approval_score:
+                indices = np.where(approval_score == t)
+                min_cost = np.min(c[indices])
+                budget[k, t] = min_cost
+                
+                projects[(k,t)] = [[proj] for proj in indices[0]]
+                
+            elif k > 0:
+                min_budget_i = np.inf
+                min_projects_k = []
+                
+                for p_k in range(P):
+                    new_t = int(t - approval_score[p_k])
+                    budget_i = np.inf
+                    projects_k = []
+                    
+                    if (new_t) >= 0 and (new_t) < (n * P):
+                        for proj_k in projects[(k-1, new_t)]:
+                            
+                            if p_k not in proj_k:
+                                budget_i = budget[k-1, new_t] + c[k]
+                                copy_k = proj_k.copy()
+                                copy_k.append(p_k)
+                                projects_k.append(copy_k)
+                                
+                    if budget_i < min_budget_i:
+                        min_budget_i = budget_i
+                        min_projects_k = projects_k
+
+                budget[k, t] = np.minimum(budget[k-1, t], min_budget_i)
+
+                if budget[k-1, t] <= min_budget_i:
+                    projects[(k, t)] = projects[(k-1, t)]
+                    
+                else:
+                    projects[(k, t)] = min_projects_k
+                
+    indices = np.where(budget <= b)
+    index = np.argmax(indices[1])
+    return projects[(indices[0][index], indices[1][index])]
