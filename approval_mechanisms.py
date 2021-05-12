@@ -1,5 +1,8 @@
 import collections
 from utils import create_appr_dict
+import numpy as np
+from collections import defaultdict
+np.random.seed(4)
 
 
 
@@ -27,12 +30,15 @@ def greedy(profile, prod_costs, budget):
     return total_elected
 
 def max_approval(P, A, b, c, n):
-    """ 
-    Dit is de klad versie, snap het nu eindelijk
-    Zal het morgen beter implementeren
-    """
+    '''
+    P (int): number of projects
+    A (list of array): profile of approval ballots
+    b (int): budget
+    c (list of int): cost of each project
+    n (int): number of voters
+    '''
     budget = np.full((P, n * P), np.inf)
-    projects = collections.defaultdict(list)
+    projects = defaultdict(list)
     
     approval_score = np.zeros(P)
     
@@ -44,44 +50,41 @@ def max_approval(P, A, b, c, n):
             
             if k == 0 and t in approval_score:
                 indices = np.where(approval_score == t)
-                min_cost = np.min(c[indices])
-                budget[k, t] = min_cost
-                
-                projects[(k,t)] = [[proj] for proj in indices[0]]
+                min_index = np.argmin(c[indices])
+                budget[k, t] = c[indices][min_index]
+                projects[(k, t)] = [indices[0][min_index]]
                 
             elif k > 0:
-                min_budget_i = np.inf
+                min_cost = np.inf
                 min_projects_k = []
                 
                 for p_k in range(P):
-                    new_t = int(t - approval_score[p_k])
-                    budget_i = np.inf
-                    projects_k = []
+                    old_t = int(t - approval_score[p_k])
+                    old_projects = projects[(k-1, old_t)]
                     
-                    if (new_t) >= 0 and (new_t) < (n * P):
-                        for proj_k in projects[(k-1, new_t)]:
-                            
-                            if p_k not in proj_k:
-                                budget_i = budget[k-1, new_t] + c[k]
-                                copy_k = proj_k.copy()
-                                copy_k.append(p_k)
-                                projects_k.append(copy_k)
-                                
-                    if budget_i < min_budget_i:
-                        min_budget_i = budget_i
-                        min_projects_k = projects_k
+                    if (old_t) >= 0 and (old_t) < (n * P) and p_k not in old_projects:
+                        
+                        cost_k = budget[k-1, old_t] + c[p_k]
 
-                budget[k, t] = np.minimum(budget[k-1, t], min_budget_i)
+                        if cost_k < min_cost:
+                            min_cost = cost_k
+                            copy_k = old_projects.copy()
+                            copy_k.append(p_k)
+                            min_projects_k = copy_k
 
-                if budget[k-1, t] <= min_budget_i:
+                budget[k, t] = np.minimum(budget[k-1, t], min_cost)
+
+                if budget[k, t] == min_cost:
+                    projects[(k, t)] = min_projects_k
+                else:
                     projects[(k, t)] = projects[(k-1, t)]
                     
-                else:
-                    projects[(k, t)] = min_projects_k
                 
-    indices = np.where(budget <= b)
-    index = np.argmax(indices[1])
-    return projects[(indices[0][index], indices[1][index])]
+    feasable_set = np.where(budget <= b)
+    index = np.argmax(feasable_set[1])
+    outcome = projects[(feasable_set[0][index], feasable_set[1][index])]
+    
+    return outcome
 
 
 def load_balancing(A, b, proj_costs, projects): 
