@@ -6,6 +6,18 @@ np.random.seed(4)
 
 
 def greedy(profile, prod_costs, budget):
+    """Greedy approval mechanism that takes a profile (list of approval ballots per voter), dictionary that maps the
+    products (ints) to their costs (ints) and a budget (ints). Returns the list of elected products.
+
+
+    Input
+        profile: list of tuples of ints                                             [(int,int), (int), (int, int, int)]
+        prod_costs: dictionary that maps each product (int) to their cost (int)     {0:1, 1:3, 2:5}
+        budget: int                                                                 10
+
+    Output
+        elected: list of ints                                                       [1,2]
+    """
 
     flat_votes = sorted([p for ballot in profile for p in ballot])  # make sure we have lexographical tie breaking
 
@@ -28,12 +40,13 @@ def greedy(profile, prod_costs, budget):
 
     return total_elected
 
+
 def max_approval(P, A, b, c, n):
     '''
     P (int): number of projects
     A (list of array): profile of approval ballots
     b (int): budget
-    c (list of int): cost of each project
+    c (array of int): cost of each project
     n (int): number of voters
     '''
     budget = np.full((P, n * P), np.inf)
@@ -42,7 +55,7 @@ def max_approval(P, A, b, c, n):
     approval_score = np.zeros(P)
     
     for A_i in A:
-        approval_score[A_i] += 1
+        approval_score[np.asarray(A_i)] += 1
     
     for k in range(P):
         for t in range(n * P):
@@ -77,8 +90,8 @@ def max_approval(P, A, b, c, n):
                     projects[(k, t)] = min_projects_k
                 else:
                     projects[(k, t)] = projects[(k-1, t)]
-                    
-                
+
+
     feasable_set = np.where(budget <= b)
     index = np.argmax(feasable_set[1])
     outcome = projects[(feasable_set[0][index], feasable_set[1][index])]
