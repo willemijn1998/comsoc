@@ -2,7 +2,6 @@ import collections
 from utils import create_appr_dict
 
 
-
 def greedy(profile, prod_costs, budget):
 
     flat_votes = sorted([p for ballot in profile for p in ballot])  # make sure we have lexographical tie breaking
