@@ -21,3 +21,18 @@ def feas_set(projects, budget, cost_dict):
             feas_proj_combs.append(proj_comb)
 
     return feas_proj_combs 
+
+def create_appr_dict(A, projects): 
+    """
+    Creates a dictionary of projects and the voters that approved of them: {project1: [list of voters], ...}
+    A: list of tuples with input approval ballots, first in list corresponds to first voter
+    projects: list of projects
+    """
+    n = len(A)
+    appr_dict = {p:[] for p in projects}
+    
+    for voter,ballot in enumerate(A): 
+        for proj in ballot: 
+            appr_dict[proj].append(voter)
+    
+    return appr_dict 

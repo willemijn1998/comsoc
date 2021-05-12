@@ -1,4 +1,6 @@
 import collections
+from utils import create_appr_dict
+
 
 
 def greedy(profile, prod_costs, budget):
@@ -80,3 +82,40 @@ def max_approval(P, A, b, c, n):
     indices = np.where(budget <= b)
     index = np.argmax(indices[1])
     return projects[(indices[0][index], indices[1][index])]
+
+
+def load_balancing(A, b, proj_costs, projects): 
+    """
+    A: list of tuples with input approval ballots
+    b: budget (integer)
+    proj_costs: dictionary of projects and costs {project1: cost1, project2: cost2, ...}
+    """
+    n = len(A)
+    A = list(map(list, A))       
+    
+    # dictionary with {project1: [list of voters that approved], ...}
+    appr_dict = create_appr_dict(A, projects) 
+
+    S = [] # accepted projects
+    loads = np.zeros(n) # initial loads 
+        
+    while projects: 
+        min_score = 1000000
+
+        for project in projects: 
+            
+            score = (proj_costs[project] + np.sum(loads[appr_dict[project]]))/ len(appr_dict[project])
+            
+            if score < min_score: 
+                # ensures lexicographic tiebreaking 
+                new_project = project 
+                min_score = score 
+                
+        if proj_costs[new_project]<= b: 
+            S.append(new_project)
+            b = b - proj_costs[new_project]
+            loads[appr_dict[new_project]] = min_score
+            
+        projects.remove(new_project)
+        
+    return S   
