@@ -5,7 +5,6 @@ from collections import defaultdict
 np.random.seed(4)
 
 
-
 def greedy(profile, prod_costs, budget):
 
     flat_votes = sorted([p for ballot in profile for p in ballot])  # make sure we have lexographical tie breaking
