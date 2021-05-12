@@ -137,4 +137,4 @@ def load_balancing(A, b, proj_costs, projects):
             
         projects.remove(new_project)
         
-    return S   
+    return S
