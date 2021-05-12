@@ -115,7 +115,7 @@ def load_balancing(A, b, proj_costs, projects):
     S = [] # accepted projects
     loads = np.zeros(n) # initial loads 
         
-    while projects: 
+    while True: 
         min_score = 1000000
         new_project = None
 
