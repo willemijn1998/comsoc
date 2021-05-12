@@ -103,6 +103,7 @@ def load_balancing(A, b, proj_costs, projects):
     """
     A: list of tuples with input approval ballots
     b: budget (integer)
+    projects: list of projects
     proj_costs: dictionary of projects and costs {project1: cost1, project2: cost2, ...}
     """
     n = len(A)
@@ -116,15 +117,18 @@ def load_balancing(A, b, proj_costs, projects):
         
     while projects: 
         min_score = 1000000
+        new_project = None
 
         for project in projects: 
             
             score = (proj_costs[project] + np.sum(loads[appr_dict[project]]))/ len(appr_dict[project])
             
             if score < min_score: 
-                # ensures lexicographic tiebreaking 
                 new_project = project 
                 min_score = score 
+
+        if not new_project: 
+            break 
                 
         if proj_costs[new_project]<= b: 
             S.append(new_project)
