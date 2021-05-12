@@ -3,6 +3,7 @@ import argparse
 from approval_mechanisms import greedy, load_balancing, max_approval
 from utils import k_set
 import numpy as np
+from tqdm import tqdm
 
 
 def get_payoff(profile, prod_costs, budget, manipulator_profile, approval_mechanism, p, n):
@@ -106,7 +107,7 @@ def main(p, n, C_max=2, C=None, k=None, b=None, sample_size=100, profile=None, c
     profile_ = profile if profile else random.choices(possible_ballots_, k=n)
 
     return [check_strategy_proof(profile=profile_, prod_costs=cost_dict, possible_ballots=possible_ballots_,
-                                 n=n, budget=b, p=p, approval_mechanism=approval_mechanism) for _ in range(sample_size)]
+                                 n=n, budget=b, p=p, approval_mechanism=approval_mechanism) for _ in tqdm(range(sample_size))]
 
 
 if __name__ == '__main__':
