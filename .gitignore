@@ -2,3 +2,4 @@ __pycache__/
 notebook_elise.ipynb
 data/
 .ipynb_checkpoints
+create_synthetic_profiles.ipynb
