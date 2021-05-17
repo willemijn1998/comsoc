@@ -107,7 +107,7 @@ def load_balancing(A, b, proj_costs, projects):
     proj_costs: dictionary of projects and costs {project1: cost1, project2: cost2, ...}
     """
     n = len(A)
-    A = list(map(list, A))       
+    A = list(map(list, A))
     
     # dictionary with {project1: [list of voters that approved], ...}
     appr_dict = create_appr_dict(A, projects) 

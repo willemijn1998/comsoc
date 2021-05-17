@@ -1,6 +1,5 @@
 import numpy as np 
-
-dataset = 'data/poland_warszawa_2019_ursynow.pb'
+from utils import *
 
 def create_cost_dict(dataset): 
     """
@@ -17,7 +16,7 @@ def create_cost_dict(dataset):
     
     for line in all_lines[start:stop]: 
         proj, cost = line.split(';')[0:2]
-        cost_dict[proj] = cost
+        cost_dict[int(proj)] = int(cost)
         
     return cost_dict
 
@@ -39,5 +38,11 @@ def create_ballots(dataset):
         
     return ballots
 
-cost_dict = create_cost_dict(dataset)
-profiles = create_ballots(dataset) 
+# HOW to call these in a function: 
+
+# dataset = 'data/poland_warszawa_2019_ursynow.pb'
+# budget = 2000000    
+# cost_dict = create_cost_dict(dataset)
+# projects = list(cost_dict.keys())
+# profiles = create_ballots(dataset) 
+# possible_ballots = feas_set(projects, budget, cost_dict)
