@@ -1,10 +1,11 @@
-from itertools import chain, combinations
+import numpy as np
+from itertools import chain, combinations, compress
 
 
 def k_set(prods, k):
     """Returns the set of possible combinations of products on a ballot with the maximum amount of
     products being k."""
-    return chain.from_iterable(combinations(prods, n) for n in range(1, k + 1))\
+    return chain.from_iterable(combinations(prods, n) for n in range(1, k + 1))
 
 def feas_set(projects, budget, cost_dict): 
     """
@@ -12,15 +13,20 @@ def feas_set(projects, budget, cost_dict):
     budget, i.e. a voter cannot choose more projects than fits in the available budget. The input dict 
     proj_cost represent the projects and their costs.
     """
-    k = 1 + len(projects)
-    feas_proj_combs = []
+    # feas_proj_combs = []
+    #
+    # for proj_comb in chain.from_iterable(combinations(projects, n) for n in range(1, len(projects) + 1)):
+    #
+    #     cost = sum([cost_dict.get(proj) for proj in proj_comb])
+    #
+    #     if cost <= budget:
+    #         feas_proj_combs.append(proj_comb)
+    #
+    # return feas_proj_combs
+    options = list(chain.from_iterable(combinations(projects, n) for n in range(1, len(projects) + 1)))
+    ballot_costs = np.fromiter(map(lambda x: sum(list(map(cost_dict.get, x))), options), dtype=np.int)
+    return set(compress(options, ballot_costs <= budget))
 
-    for proj_comb in chain.from_iterable(combinations(projects, n) for n in range(1, k)):
-        cost = sum([cost_dict.get(proj) for proj in proj_comb])
-        if cost <= budget: 
-            feas_proj_combs.append(proj_comb)
-
-    return feas_proj_combs 
 
 def create_appr_dict(A, projects): 
     """

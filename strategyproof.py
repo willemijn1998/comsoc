@@ -1,7 +1,7 @@
 import random
 import argparse
 from approval_mechanisms import greedy, load_balancing, max_approval
-from utils import k_set
+from utils import k_set, feas_set
 import numpy as np
 from tqdm import tqdm
 
@@ -76,7 +76,7 @@ def check_strategy_proof(profile, prod_costs, possible_ballots, n, budget, p, ap
     return strategy_proof
 
 
-def main(p, n, C_max=2, C=None, k=None, b=None, sample_size=100, profile=None, cost_dict=None, approval_mechanism='greedy'):
+def main(p, n, C_max=2, C=None, b=None, sample_size=100, profile=None, cost_dict=None, approval_mechanism='greedy'):
     """Run the strategyproof test for the provided parameters
 
     Input
@@ -84,7 +84,6 @@ def main(p, n, C_max=2, C=None, k=None, b=None, sample_size=100, profile=None, c
         :param n                    (int) number of voters
         :param C_max                (int) maximum price a product can be worth, only used to sample uniformly if C is not provided
         :param C                    (list of ints) the costs of all the products, the length must be the same as p
-        :param k                    (int) maximum number of projects a voter can approve, if not provided this is p
         :param b                    (int) budget, if not provided this is 20% of the total cost
         :param sample_size          (int) sample size to determine strategyproofness percentage
         :param profile              (list of tuples of ints) the approval ballots per voter, of length n
@@ -96,18 +95,27 @@ def main(p, n, C_max=2, C=None, k=None, b=None, sample_size=100, profile=None, c
         :param strategyproofness    (int) percentage of the runs (length sample_size) that are strategyproof
 
     """
-
     products = list(range(p))
     costs = np.random.randint(1, C_max, size=p) if not C else list(map(int, C))
-    k = k if k else p
-    b = b if b else int(0.2 * sum(costs)) + 1
+    budget = b if b else int(0.2 * sum(costs)) + 1  # TODO min cost of a prod must be larger than budget
 
     cost_dict = cost_dict if cost_dict else dict(zip(products, costs))
-    possible_ballots_ = list(k_set(products, k))
+    possible_ballots_ = feas_set(products, budget, cost_dict)
     profile_ = profile if profile else random.choices(possible_ballots_, k=n)
 
-    total = [check_strategy_proof(profile=profile_, prod_costs=cost_dict, possible_ballots=possible_ballots_,
-                                 n=n, budget=b, p=p, approval_mechanism=approval_mechanism) for _ in tqdm(range(sample_size))]
+    total = []
+    for _ in tqdm(range(sample_size)):
+        total.append(
+            check_strategy_proof(
+                n=n,
+                budget=b,
+                profile=profile_,
+                prod_costs=cost_dict,
+                possible_ballots=possible_ballots_,
+                approval_mechanism=approval_mechanism
+            )
+        )
+
     return sum(total) / len(total) * 100
 
 
@@ -120,11 +128,10 @@ if __name__ == '__main__':
     parser.add_argument('--C_max', type=int, help='max cost of a product', default=2)
     parser.add_argument('--b', type=int, help='budget', default=None)
     parser.add_argument('--n', type=int, help='number of voters', default=3)
-    parser.add_argument('--k', type=int, help='max number of products on a ballot', default=None)
     parser.add_argument('--sample_size', type=int, help='number of checks on strategyproofness', default=1000)
     parser.add_argument('--approval_mechanism', type=str, help='type of approval mechanism', default='greedy')
 
     args = parser.parse_args()
 
-    percentage = main(p=args.p, n=args.n, C_max=args.C_max, C=args.C, k=args.k, b=args.b, approval_mechanism=args.approval_mechanism)
+    percentage = main(p=args.p, n=args.n, C_max=args.C_max, C=args.C, b=args.b, approval_mechanism=args.approval_mechanism)
     print(f'The provided situation is strategyproof: {percentage}%')
