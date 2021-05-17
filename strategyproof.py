@@ -106,8 +106,9 @@ def main(p, n, C_max=2, C=None, k=None, b=None, sample_size=100, profile=None, c
     possible_ballots_ = list(k_set(products, k))
     profile_ = profile if profile else random.choices(possible_ballots_, k=n)
 
-    return [check_strategy_proof(profile=profile_, prod_costs=cost_dict, possible_ballots=possible_ballots_,
+    total = [check_strategy_proof(profile=profile_, prod_costs=cost_dict, possible_ballots=possible_ballots_,
                                  n=n, budget=b, p=p, approval_mechanism=approval_mechanism) for _ in tqdm(range(sample_size))]
+    return sum(total) / len(total) * 100
 
 
 if __name__ == '__main__':
@@ -125,5 +126,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    result = main(p=args.p, n=args.n, C_max=args.C_max, C=args.C, k=args.k, b=args.b, approval_mechanism=args.approval_mechanism)
-    print(f'The provided situation is strategyproof: {sum(result) / len(result) * 100}%')
+    percentage = main(p=args.p, n=args.n, C_max=args.C_max, C=args.C, k=args.k, b=args.b, approval_mechanism=args.approval_mechanism)
+    print(f'The provided situation is strategyproof: {percentage}%')
