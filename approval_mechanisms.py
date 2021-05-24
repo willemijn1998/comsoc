@@ -19,8 +19,7 @@ def greedy(profile, prod_costs, budget):
         elected: list of ints                                                       [1,2]
     """
 
-    flat_votes = sorted([p for ballot in profile for p in ballot])  # make sure we have lexographical tie breaking
-
+    flat_votes = sorted([p for ballot in profile for p in ballot])  # make sure we have lexicographical tie breaking
     total_elected = []
     total_cost_elected = 0
 
