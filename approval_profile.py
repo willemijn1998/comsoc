@@ -6,7 +6,9 @@ from numpy import random
 from pylab import rcParams
 from collections import Counter
 from datetime import date
-
+# import matplotlib.pyplot as plt 
+# %matplotlib inline
+from matplotlib import pyplot as plt
 
 def normal(loc=0, scale=1, size=None, **kwargs):
     return random.normal(loc, scale, size)
