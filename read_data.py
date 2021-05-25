@@ -1,5 +1,6 @@
 import numpy as np 
-import random as rd
+import random 
+import matplotlib.pyplot as plt
 
 def read_data(path): 
     file = open(path)
@@ -73,8 +74,7 @@ def exhaustiveness(ballots, cost_dict, budget):
         
     return exhaust
 
-def get_distributions(path, n_projects): 
-    dataset = read_data(path)
+def get_distributions(dataset, n_projects): 
     ballots = get_ballots(dataset)
     budget = get_budget(dataset)
     votes, projects = get_votes(dataset)
@@ -89,7 +89,7 @@ def get_distributions(path, n_projects):
     exh_values = [(bins[i] + bins[i+1])/2 for i in range(len(bins)-1)]
     
     # Popularity 
-    projects_sample = rd.choices(projects, k=n_projects)
+    projects_sample = random.choices(projects, k=n_projects)
     costs_sample = []
     votes_sample = []
     for project in projects_sample: 
@@ -102,7 +102,7 @@ def get_distributions(path, n_projects):
     return exh_distr, exh_values, pop_distr, costs, budget_percentage
 
 
-def create_synth_profile(path, n_voters, n_projects): 
+def create_synth_profile_vec(path, n_voters, n_projects): 
     """ 
     This functiion creates profiles from a pabulib file 
     """
@@ -110,23 +110,22 @@ def create_synth_profile(path, n_voters, n_projects):
     projects = [i for i in range(n_projects)]
     
     budget = sum(costs) * budget_percentage
-    profile = []
+    profile = np.zeros((n_voters, n_projects))
 
     for i in range(n_voters): 
-        exh = rd.choices(exh_values, exh_distr)[0]
+        exh = random.choices(exh_values, exh_distr)[0]
         max_cost = exh * budget
         total_cost = 0 
-        ballot = []
+        ballot = np.zeros(n_projects)
         
         while True: 
-            project = rd.choices(projects, pop_distr, k=1)[0]
-            ballot.append(project)
+            project = random.choices(projects, pop_distr, k=1)[0]
+            ballot[project] = 1
             total_cost += costs[project]
             
             if total_cost >= max_cost: 
                 break
-            
-        profile.append(ballot)
+                
+        profile[i] = ballot
     
     return profile, costs, budget
-
