@@ -64,16 +64,26 @@ def check_strategy_proof(n, p, profile, costs, budget, approval_mechanism):
         manipulator_ballot = profile[manipulator]
         mb_indices = np.where(manipulator_ballot == 1)[1]
 
-        feasible_ballots = [ballot for ballot in np.array(list(itertools.product([0, 1], repeat=p))) \
-                                if sum(costs[np.where(ballot == 1)[0]]) <= budget]
+        feasible_ballots = []
+        for ballot in np.array(list(itertools.product([0, 1], repeat=p))):
+            if sum(costs[np.where(ballot == 1)[0]]) <= budget:
+                feasible_ballots.append(ballot)
 
-        manipulation_ballots = [ballot for ballot in feasible_ballots \
-                                if (set(np.where(ballot == 1)[0]).issubset(mb_indices) and np.sum(ballot) != 0) or \
-                                (set(mb_indices).issubset(np.where(ballot == 1)[0]) and \
-                                 np.sum(ballot) == np.sum(manipulator_ballot) + 1)]
+        manipulation_ballots = []
+        for ballot in feasible_ballots:
 
-        real_outcome = get_payoff(n, p, profile=profile, costs=costs, budget=budget, \
-            manipulator_ballot=manipulator_ballot, approval_mechanism=approval_mechanism).diagonal()
+            _1 = set(np.where(ballot == 1)[0]).issubset(mb_indices)
+            _2 = np.sum(ballot) != 0
+            _3 = set(mb_indices).issubset(np.where(ballot == 1)[0])
+            _4 = np.sum(ballot) == np.sum(manipulator_ballot) + 1
+            if (_1 and _2) or (_3 and np.sum(ballot) == _4):
+
+                manipulation_ballots.append(ballot)
+
+        real_outcome = get_payoff(
+            n, p, profile=profile, costs=costs, budget=budget,
+            manipulator_ballot=manipulator_ballot, approval_mechanism=approval_mechanism
+        ).diagonal()
         
         start = 0
         stop = 0
@@ -119,9 +129,14 @@ def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='gre
         :param strategy_proofness (int) percentage of the runs (length sample_size) that are strategy proof
     """
     costs = np.random.randint(1, C_max, size=n_projects) if not C else np.array(C).astype(int)
-    budget = b if b else int(0.5 * sum(costs)) + 1  # TODO min cost of a proj must be larger than budget
+
+    min_budget = int(2 * min(costs))  # min budget must be at least twice the price of the cheapest project
+    suggested_budget = int(0.3 * sum(costs))  # budget should be 30% of the total costs based on real world data
+    budget = b if b else max(suggested_budget, min_budget)
 
     total = []
+
+    print(f'Running {approval_mechanism}:')
 
     for _ in tqdm(range(sample_size)):
         profiles = get_vec_profiles(n_voters, n_projects, costs, budget, 1, distr)
@@ -139,6 +154,7 @@ def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='gre
 
     return sum(total) / len(total) * 100
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -154,6 +170,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    percentage = main(p=args.n_projects, n=args.n_voters, C_max=args.cost_max, C=args.costs,
+    percentage = main(n_projects=args.n_projects, n_voters=args.n_voters, C_max=args.cost_max, C=args.costs,
                       b=args.budget, approval_mechanism=args.approval_mechanism)
     print(f'The provided situation is strategy proof: {percentage}%')
