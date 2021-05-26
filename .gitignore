@@ -6,3 +6,5 @@ create_synthetic_profiles.ipynb
 read_data.ipynb 
 .ipynb_checkpoints/
 .DS_Store
+input_data/*
+input_data

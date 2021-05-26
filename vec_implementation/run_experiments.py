@@ -1,12 +1,12 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from strategyproof import main
 from tqdm import tqdm
 import datetime
+import argparse
 
 
-def plot_it(prods=10, voters=[5], cost_iterations=3, C_max=2, sample_size=100):
+def plot_it(prods=10, voters=[5], cost_iterations=3, C_max=2, sample_size=100, experiment='uniform'):
 
     df = pd.DataFrame(columns=['n_prods', 'n_voters', 'max_cost', 'type', 'sample_size', '%'])
     now = str(datetime.datetime.now())
@@ -31,16 +31,30 @@ def plot_it(prods=10, voters=[5], cost_iterations=3, C_max=2, sample_size=100):
             df.loc[len(df)] = [n_products, int(n_voters), C_max, 'load_balancing', sample_size, percentage_load_balancing]
             df.loc[len(df)] = [n_products, int(n_voters), C_max, 'max_approval', sample_size, percentage_max_approval]
 
-            df.to_csv(f"data/results_{now}.csv")
+            df.to_csv(f"data/results_{experiment}_{now}.csv")
 
     plt.figure(figsize=[10, 10])
     plt.title(f'Strategy proofness (n {constant} = 5)')
     sns.lineplot(data=df, x=f'n_{not_constant}', y='%', hue='type')
-    plt.savefig(f"data/figure_{now}.jpg")
+    plt.savefig(f"data/figure_{experiment}_{now}.jpg")
     plt.show()
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Process some integers.')
+
+    parser.add_argument('--sample_size', type=int, default=1500)
+    parser.add_argument('--experiment', type=str, help='number of voters',
+                        default='uniform', choices=['distributions','uniform'])
+    args = parser.parse_args()
+    print(args.experiment)
+
+    if args.experiment == 'distributions':
+        from strategyproof_adept import main
+    elif args.experiment == 'uniform':
+        from strategyproof import main
+
     range_voters = [2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50]
     print(f'Running the experiments for voters {range_voters}.')
-    plot_it(voters=range_voters, C_max=11, sample_size=1500)
+    plot_it(voters=range_voters, C_max=11, sample_size=args.sample_size, experiment=args.experiment)

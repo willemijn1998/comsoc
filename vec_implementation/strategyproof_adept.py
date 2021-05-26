@@ -136,7 +136,7 @@ def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='gre
 
     total = []
 
-    print(f'Running {approval_mechanism}:')
+    print(f'Running {approval_mechanism} with real distributions:')
 
     for _ in tqdm(range(sample_size)):
         profiles = get_vec_profiles(n_voters, n_projects, costs, budget, 1, distr)
@@ -155,7 +155,7 @@ def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='gre
     return sum(total) / len(total) * 100
 
 
-def main_path(n_voters, n_projects, path, approval_mechanism='greedy', sample_size=100):
+def main_path(n_voters, n_projects, path='./input_data/poland_warszawa_2018_ursynow-wysoki-polnocny.pb', approval_mechanism='greedy', sample_size=100):
     """Run the strategy proof test for the provided parameters
     Input
         :param n_projects         (int) number of projects
@@ -191,6 +191,7 @@ def main_path(n_voters, n_projects, path, approval_mechanism='greedy', sample_si
         )
 
     return sum(total) / len(total) * 100
+
 
 if __name__ == '__main__':
 
