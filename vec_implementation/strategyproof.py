@@ -161,12 +161,12 @@ if __name__ == '__main__':
 
     parser.add_argument('--n_voters', type=int, help='number of voters', default=3)
     parser.add_argument('--n_projects', type=int, help='number of projects', default=3)
-    parser.add_argument('--C_max', type=int, help='max cost of a project', default=2)
+    parser.add_argument('--cost_max', type=int, help='max cost of a project', default=2)
     parser.add_argument('--sample_size', type=int, help='number of checks on strategy proofness', default=1000)
     parser.add_argument('--approval_mechanism', type=str, help='type of approval mechanism', default='greedy')
     parser.add_argument('--distr', type=list, help='popularity distribution per project', default=None)
-    parser.add_argument('--C', type=list, help='cost per project', default=None)
-    parser.add_argument('--b', type=int, help='budget', default=None)
+    parser.add_argument('--costs', type=list, help='cost per project', default=None)
+    parser.add_argument('--budget', type=int, help='budget', default=None)
 
     args = parser.parse_args()
 

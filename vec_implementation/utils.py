@@ -2,6 +2,7 @@ import numpy as np
 import random 
 import matplotlib.pyplot as plt
 
+
 def get_vec_profiles(n_voters, n_projects, costs, budget, n_profiles, distr=None):
     
     profiles = np.zeros((n_voters, n_profiles, n_projects))
