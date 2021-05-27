@@ -1,37 +1,52 @@
+import datetime
+import argparse
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-import datetime
-import argparse
 
 
-def plot_it(prods=10, voters=[5], cost_iterations=1, C_max=2, sample_size=100, experiment='uniform'):
+def plot_it(prods=10, voters=[5], C_max=2, sample_size=100, experiment='uniform'):
 
     df = pd.DataFrame(columns=['n_prods', 'n_voters', 'max_cost', 'type', 'sample_size', '%'])
     now = str(datetime.datetime.now())
 
     constant = 'prods' if prods == 10 else 'voters'
     not_constant = 'voters' if constant == 'prods' else 'prods'
+    n_products = prods
 
-    for _ in range(cost_iterations):  # add some runs for the cost to be random
+    for n_voters in tqdm(voters):
+        percentage_greedy = main(
+            n_projects=n_products,
+            n_voters=n_voters,
+            C_max=C_max,
+            sample_size=sample_size,
+            approval_mechanism='greedy'
+        )
+        percentage_load_balancing = main(
+            n_projects=n_products,
+            n_voters=n_voters,
+            C_max=C_max,
+            sample_size=sample_size,
+            approval_mechanism='load_balancing'
+        )
 
-        n_products = prods
+        try:
+            percentage_max_approval = main(
+                n_projects=n_products,
+                n_voters=n_voters,
+                C_max=C_max,
+                sample_size=sample_size,
+                approval_mechanism='max_approval'
+            )
+        except:
+            percentage_max_approval = None
 
-        for n_voters in tqdm(voters):
-            percentage_greedy = main(n_projects=n_products, n_voters=n_voters, C_max=C_max, sample_size=sample_size, approval_mechanism='greedy')
-            percentage_load_balancing = main(n_projects=n_products, n_voters=n_voters, C_max=C_max, sample_size=sample_size, approval_mechanism='load_balancing')
+        df.loc[len(df)] = [n_products, int(n_voters), C_max, 'greedy', sample_size, percentage_greedy]
+        df.loc[len(df)] = [n_products, int(n_voters), C_max, 'load_balancing', sample_size, percentage_load_balancing]
+        df.loc[len(df)] = [n_products, int(n_voters), C_max, 'max_approval', sample_size, percentage_max_approval]
 
-            try:
-                percentage_max_approval = main(n_projects=n_products, n_voters=n_voters, C_max=C_max, sample_size=sample_size, approval_mechanism='max_approval')
-            except:
-                percentage_max_approval = None
-
-            df.loc[len(df)] = [n_products, int(n_voters), C_max, 'greedy', sample_size, percentage_greedy]
-            df.loc[len(df)] = [n_products, int(n_voters), C_max, 'load_balancing', sample_size, percentage_load_balancing]
-            df.loc[len(df)] = [n_products, int(n_voters), C_max, 'max_approval', sample_size, percentage_max_approval]
-
-            df.to_csv(f"data/results_{experiment}_prods{prods}_cost{C_max}_size{sample_size}_voters{voters}_{now}.csv")
+        df.to_csv(f"data/results_{experiment}_prods{prods}_cost{C_max}_size{sample_size}_voters{voters}_{now}.csv")
 
     plt.figure(figsize=[10, 10])
     plt.title(f'Strategy proofness (n {constant} = 5)')
@@ -58,4 +73,10 @@ if __name__ == '__main__':
 
     range_voters = [2, 3, 4, 5, 6, 7, 8, 9, 10]
     print(f'Running the experiments for voters {range_voters}.')
-    plot_it(prods=args.n_products, voters=range_voters, C_max=args.cost_max, sample_size=args.sample_size, experiment=args.experiment)
+    plot_it(
+        prods=args.n_products,
+        voters=range_voters,
+        C_max=args.cost_max,
+        sample_size=args.sample_size,
+        experiment=args.experiment
+    )

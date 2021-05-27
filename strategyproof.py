@@ -1,10 +1,11 @@
-from utils import get_vec_profiles
 import argparse
 import itertools
-from approval_mechanisms import vec_greedy, vec_load_balancing, vec_max_approval
-from utils import *
+
 import numpy as np
 from tqdm import tqdm
+
+from utils import *
+from approval_mechanisms import vec_greedy, vec_load_balancing, vec_max_approval
 
 
 def get_payoff(n, p, profile, costs, budget, manipulator_ballot, approval_mechanism):
@@ -157,7 +158,7 @@ def main(n_voters, n_projects, C_max=2, sample_size=100,
 
 
 def main_path(n_voters, n_projects, path='./input_data/poland_warszawa_2018_ursynow-wysoki-polnocny.pb',
-              approval_mechanism='greedy', sample_size=100):
+              approval_mechanism='greedy', sample_size=100, C_max=None):
     """Run the strategy proof test for the provided parameters
     Input
         :param n_projects         (int) number of projects
