@@ -6,7 +6,7 @@ import datetime
 import argparse
 
 
-def plot_it(prods=10, voters=[5], cost_iterations=3, C_max=2, sample_size=100, experiment='uniform'):
+def plot_it(prods=10, voters=[5], cost_iterations=1, C_max=2, sample_size=100, experiment='uniform'):
 
     df = pd.DataFrame(columns=['n_prods', 'n_voters', 'max_cost', 'type', 'sample_size', '%'])
     now = str(datetime.datetime.now())
@@ -44,17 +44,19 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process some integers.')
 
+    parser.add_argument('--cost_max', type=int, default=11)
     parser.add_argument('--sample_size', type=int, default=1500)
-    parser.add_argument('--experiment', type=str, help='number of voters',
+    parser.add_argument('--n_products', type=int, default=10)
+    parser.add_argument('--experiment', type=str,
                         default='uniform', choices=['distributions','uniform'])
     args = parser.parse_args()
-    print(args.experiment)
 
     if args.experiment == 'distributions':
-        from strategyproof_adept import main
+        from strategyproof_adept import main_path as main
     elif args.experiment == 'uniform':
         from strategyproof import main
 
-    range_voters = [2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50]
+#    range_voters = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    range_voters = [20, 30, 40, 50]
     print(f'Running the experiments for voters {range_voters}.')
-    plot_it(voters=range_voters, C_max=11, sample_size=args.sample_size, experiment=args.experiment)
+    plot_it(prods=args.n_products, voters=range_voters, C_max=args.cost_max, sample_size=args.sample_size, experiment=args.experiment)

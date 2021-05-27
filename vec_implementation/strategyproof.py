@@ -171,5 +171,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     percentage = main(n_projects=args.n_projects, n_voters=args.n_voters, C_max=args.cost_max, C=args.costs,
-                      b=args.budget, approval_mechanism=args.approval_mechanism)
+                      sample_size=args.sample_size, b=args.budget, approval_mechanism=args.approval_mechanism)
     print(f'The provided situation is strategy proof: {percentage}%')
