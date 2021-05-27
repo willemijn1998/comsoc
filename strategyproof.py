@@ -1,7 +1,8 @@
+from utils import get_vec_profiles
 import argparse
 import itertools
 from approval_mechanisms import vec_greedy, vec_load_balancing, vec_max_approval
-from utils import get_vec_profiles
+from utils import *
 import numpy as np
 from tqdm import tqdm
 
@@ -77,7 +78,6 @@ def check_strategy_proof(n, p, profile, costs, budget, approval_mechanism):
             _3 = set(mb_indices).issubset(np.where(ballot == 1)[0])
             _4 = np.sum(ballot) == np.sum(manipulator_ballot) + 1
             if (_1 and _2) or (_3 and np.sum(ballot) == _4):
-
                 manipulation_ballots.append(ballot)
 
         real_outcome = get_payoff(
@@ -112,7 +112,8 @@ def check_strategy_proof(n, p, profile, costs, budget, approval_mechanism):
     return strategy_proof
 
 
-def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='greedy', distr=None, C=None, b=None):
+def main(n_voters, n_projects, C_max=2, sample_size=100,
+         approval_mechanism='greedy', distr=None, C=None, b=None):
     """Run the strategy proof test for the provided parameters
     Input
         :param n_projects         (int) number of projects
@@ -155,6 +156,44 @@ def main(n_voters, n_projects, C_max=2, sample_size=100, approval_mechanism='gre
     return sum(total) / len(total) * 100
 
 
+def main_path(n_voters, n_projects, path='./input_data/poland_warszawa_2018_ursynow-wysoki-polnocny.pb',
+              approval_mechanism='greedy', sample_size=100):
+    """Run the strategy proof test for the provided parameters
+    Input
+        :param n_projects         (int) number of projects
+        :param n_voters           (int) number of voters
+        :param sample_size        (int) sample size to determine strategyproofness percentage
+        :param profile            (list of tuples of ints) the approval ballots per voter, of length n
+        :param cost_dict          (dict of int to int) the cost per project
+        :param approval_mechanism (string) the type of approval mechanism to use to select the elected projects, must
+                                                be either greedy, max_approval or load_balancing
+    Output
+        :param strategy_proofness (int) percentage of the runs (length sample_size) that are strategy proof
+    """
+    dataset = read_data(path)
+    total = []
+
+    print(f'Running {approval_mechanism}:')
+
+    for _ in tqdm(range(sample_size)):
+        profiles_, costs, budget_ = create_synth_profile_vec(dataset, n_voters, n_projects)
+        min_budget = int(max(costs))
+        budget = max(min_budget, budget_)
+
+        total.append(
+            check_strategy_proof(
+                n=n_voters,
+                p=n_projects,
+                profile=profiles_,
+                costs=costs,
+                budget=budget,
+                approval_mechanism=approval_mechanism
+            )
+        )
+
+    return sum(total) / len(total) * 100
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -167,9 +206,27 @@ if __name__ == '__main__':
     parser.add_argument('--distr', type=list, help='popularity distribution per project', default=None)
     parser.add_argument('--costs', type=list, help='cost per project', default=None)
     parser.add_argument('--budget', type=int, help='budget', default=None)
+    parser.add_argument('--path', type=str, help='Dataset to import for distribution', default=None)
 
     args = parser.parse_args()
 
-    percentage = main(n_projects=args.n_projects, n_voters=args.n_voters, C_max=args.cost_max, C=args.costs,
-                      sample_size=args.sample_size, b=args.budget, approval_mechanism=args.approval_mechanism)
+    if args.path:
+        percentage = main_path(
+            n_voters=args.n_voters,
+            n_projects=args.n_projects,
+            path=args.path,
+            approval_mechanism=args.approval_mechanism,
+            sample_size=args.sample_size
+        )
+    else:
+        percentage = main(
+            n_projects=args.n_projects,
+            n_voters=args.n_voters,
+            C_max=args.cost_max,
+            C=args.C,
+            b=args.b,
+            approval_mechanism=args.approval_mechanism,
+            sample_size=args.sample_size
+        )
+
     print(f'The provided situation is strategy proof: {percentage}%')

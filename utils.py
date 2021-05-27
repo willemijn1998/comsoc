@@ -30,6 +30,7 @@ def read_data(path):
     all_lines = file.readlines()
     return all_lines
 
+
 def get_costs(dataset): 
     """
     Creates cost dictionary from polish data set. Input is name of data set. 
@@ -49,6 +50,7 @@ def get_costs(dataset):
         
     return costs, projects
 
+
 def get_ballots(dataset): 
     """
     Creates list of ballots that people voted for. 
@@ -63,6 +65,7 @@ def get_ballots(dataset):
         ballots.append(ballot)
         
     return ballots
+
 
 def get_votes(dataset): 
     """
@@ -81,10 +84,12 @@ def get_votes(dataset):
         
     return votes, projects
 
+
 def get_budget(dataset): 
     budget = int(dataset[10][7:-1])
     return budget
-    
+
+
 def exhaustiveness(ballots, cost_dict, budget): 
     
     exhaust = []
@@ -96,6 +101,7 @@ def exhaustiveness(ballots, cost_dict, budget):
         exhaust.append(total_costs/budget)
         
     return exhaust
+
 
 def get_distributions(dataset, n_projects): 
     ballots = get_ballots(dataset)
